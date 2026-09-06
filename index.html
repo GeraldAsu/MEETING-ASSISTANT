@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Decisions Recorder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <h1>DecisionLog</h1>
+            <div class="header-actions">
+                <button id="btn-export-json" class="btn btn-secondary" aria-label="Export decisions to JSON">Export JSON</button>
+                <button id="btn-export-csv" class="btn btn-secondary" aria-label="Export decisions to CSV">Export CSV</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="form-section" aria-labelledby="form-title">
+            <h2 id="form-title">Record a Decision</h2>
+            <form id="decision-form" class="card">
+                <div class="form-group">
+                    <label for="title">Decision Title <span class="required" aria-hidden="true">*</span></label>
+                    <input type="text" id="title" name="title" required placeholder="e.g., Switch to a new UI library" aria-required="true">
+                </div>
+                
+                <div class="form-group">
+                    <label for="rationale">Rationale / Context <span class="required" aria-hidden="true">*</span></label>
+                    <textarea id="rationale" name="rationale" rows="4" required placeholder="Why did we make this decision?" aria-required="true"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="participants">Participants</label>
+                        <input type="text" id="participants" name="participants" placeholder="e.g., Alice, Bob, Charlie">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category / Tag</label>
+                        <input type="text" id="category" name="category" placeholder="e.g., Engineering, Q3 Planning">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Decision</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="list-section" aria-labelledby="list-title">
+            <h2 id="list-title">Recorded Decisions</h2>
+            <div id="decisions-container" class="decisions-grid">
+                <!-- Decisions will be rendered here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Edit Modal using native dialog element -->
+    <dialog id="edit-modal" class="modal" aria-labelledby="edit-modal-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="edit-modal-title">Edit Decision</h2>
+                <button type="button" id="btn-close-modal" class="btn-icon" aria-label="Close modal">&times;</button>
+            </header>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-title">Decision Title <span class="required" aria-hidden="true">*</span></label>
+                    <input type="text" id="edit-title" name="title" required aria-required="true">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-rationale">Rationale / Context <span class="required" aria-hidden="true">*</span></label>
+                    <textarea id="edit-rationale" name="rationale" rows="4" required aria-required="true"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-participants">Participants</label>
+                        <input type="text" id="edit-participants" name="participants">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-category">Category / Tag</label>
+                        <input type="text" id="edit-category" name="category">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="btn-cancel-edit" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Decision</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <script src="script.js"></script>
+</body>
+</html>
