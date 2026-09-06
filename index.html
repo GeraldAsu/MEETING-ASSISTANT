@@ -20,81 +20,190 @@
     <main class="container">
         <section class="form-section" aria-labelledby="form-title">
             <h2 id="form-title">Record a Decision</h2>
-            <form id="decision-form" class="card">
+            <form id="decision-form" class="card" novalidate>
                 <div class="form-group">
                     <label for="title">Decision Title <span class="required" aria-hidden="true">*</span></label>
-                    <input type="text" id="title" name="title" required placeholder="e.g., Switch to a new UI library" aria-required="true">
+                    <div class="combobox-wrapper">
+                        <input type="text" id="title" name="title" aria-required="true" placeholder="e.g., Switch to a new UI library" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="title-listbox">
+                        <ul id="title-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="title-error"></div>
                 </div>
                 
                 <div class="form-group">
                     <label for="rationale">Rationale / Context <span class="required" aria-hidden="true">*</span></label>
-                    <textarea id="rationale" name="rationale" rows="4" required placeholder="Why did we make this decision?" aria-required="true"></textarea>
+                    <div class="combobox-wrapper">
+                        <textarea id="rationale" name="rationale" rows="4" aria-required="true" placeholder="Why did we make this decision?" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="rationale-listbox"></textarea>
+                        <ul id="rationale-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="rationale-error"></div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="participants">Participants</label>
-                        <input type="text" id="participants" name="participants" placeholder="e.g., Alice, Bob, Charlie">
+                        <label for="part-input-main">Participants</label>
+                        <div class="participant-picker" id="picker-main">
+                            <div class="chips-container" id="chips-main"></div>
+                            <div class="combobox-wrapper">
+                                <input type="text" id="part-input-main" placeholder="Search team..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="part-listbox-main">
+                                <ul id="part-listbox-main" class="suggestions-list" role="listbox" hidden></ul>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="category">Category / Tag</label>
-                        <input type="text" id="category" name="category" placeholder="e.g., Engineering, Q3 Planning">
+                        <label for="category">Category</label>
+                        <select id="category" name="category"></select>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Save Decision</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Save Decision</button>
                 </div>
             </form>
         </section>
 
         <section class="list-section" aria-labelledby="list-title">
             <h2 id="list-title">Recorded Decisions</h2>
-            <div id="decisions-container" class="decisions-grid">
+            
+            <div class="toolbar card">
+                <div class="form-group search-group">
+                    <label for="search-input">Search</label>
+                    <input type="search" id="search-input" placeholder="Search title, rationale, tags...">
+                </div>
+                <div class="toolbar-filters">
+                    <div class="form-group">
+                        <label for="filter-status">Status</label>
+                        <select id="filter-status">
+                            <option value="All">All</option>
+                            <option value="Active" selected>Active</option>
+                            <option value="Superseded">Superseded</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filter-category">Category</label>
+                        <select id="filter-category">
+                            <option value="All">All Categories</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="decisions-container" class="decisions-grid" aria-live="polite">
                 <!-- Decisions will be rendered here -->
             </div>
         </section>
     </main>
 
-    <!-- Edit Modal using native dialog element -->
+    <!-- Supersede Modal -->
+    <dialog id="supersede-modal" class="modal" aria-labelledby="supersede-modal-title">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2 id="supersede-modal-title">Supersede Decision</h2>
+                <button type="button" id="btn-close-supersede" class="btn-icon" aria-label="Close modal">&times;</button>
+            </header>
+            <form id="supersede-form" novalidate>
+                <p class="modal-desc">This will mark the original decision as superseded and create a new active decision in its place.</p>
+                <input type="hidden" id="supersede-target-id">
+                
+                <div class="form-group">
+                    <label for="sup-title">New Decision Title <span class="required" aria-hidden="true">*</span></label>
+                    <div class="combobox-wrapper">
+                        <input type="text" id="sup-title" name="title" aria-required="true" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="sup-title-listbox">
+                        <ul id="sup-title-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="sup-title-error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sup-rationale">New Rationale <span class="required" aria-hidden="true">*</span></label>
+                    <div class="combobox-wrapper">
+                        <textarea id="sup-rationale" name="rationale" rows="4" aria-required="true" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="sup-rationale-listbox"></textarea>
+                        <ul id="sup-rationale-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="sup-rationale-error"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="part-input-sup">Participants</label>
+                        <div class="participant-picker" id="picker-sup">
+                            <div class="chips-container" id="chips-sup"></div>
+                            <div class="combobox-wrapper">
+                                <input type="text" id="part-input-sup" placeholder="Search team..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="part-listbox-sup">
+                                <ul id="part-listbox-sup" class="suggestions-list" role="listbox" hidden></ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sup-category">Category</label>
+                        <select id="sup-category" name="category"></select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="btn-cancel-supersede" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-supersede">Save New Decision</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Edit Modal -->
     <dialog id="edit-modal" class="modal" aria-labelledby="edit-modal-title">
         <div class="modal-content">
             <header class="modal-header">
                 <h2 id="edit-modal-title">Edit Decision</h2>
                 <button type="button" id="btn-close-modal" class="btn-icon" aria-label="Close modal">&times;</button>
             </header>
-            <form id="edit-form">
+            <form id="edit-form" novalidate>
                 <input type="hidden" id="edit-id">
                 <div class="form-group">
                     <label for="edit-title">Decision Title <span class="required" aria-hidden="true">*</span></label>
-                    <input type="text" id="edit-title" name="title" required aria-required="true">
+                    <div class="combobox-wrapper">
+                        <input type="text" id="edit-title" name="title" aria-required="true" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="edit-title-listbox">
+                        <ul id="edit-title-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="edit-title-error"></div>
                 </div>
                 
                 <div class="form-group">
                     <label for="edit-rationale">Rationale / Context <span class="required" aria-hidden="true">*</span></label>
-                    <textarea id="edit-rationale" name="rationale" rows="4" required aria-required="true"></textarea>
+                    <div class="combobox-wrapper">
+                        <textarea id="edit-rationale" name="rationale" rows="4" aria-required="true" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="edit-rationale-listbox"></textarea>
+                        <ul id="edit-rationale-listbox" class="suggestions-list" role="listbox" hidden></ul>
+                    </div>
+                    <div class="error-msg" id="edit-rationale-error"></div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-participants">Participants</label>
-                        <input type="text" id="edit-participants" name="participants">
+                        <label for="part-input-edit">Participants</label>
+                        <div class="participant-picker" id="picker-edit">
+                            <div class="chips-container" id="chips-edit"></div>
+                            <div class="combobox-wrapper">
+                                <input type="text" id="part-input-edit" placeholder="Search team..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="part-listbox-edit">
+                                <ul id="part-listbox-edit" class="suggestions-list" role="listbox" hidden></ul>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="edit-category">Category / Tag</label>
-                        <input type="text" id="edit-category" name="category">
+                        <label for="edit-category">Category</label>
+                        <select id="edit-category" name="category"></select>
                     </div>
                 </div>
 
                 <div class="form-actions">
                     <button type="button" id="btn-cancel-edit" class="btn btn-secondary">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Decision</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit-edit">Update Decision</button>
                 </div>
             </form>
         </div>
     </dialog>
+
+    <div id="toast-container" aria-live="polite" class="toast-container"></div>
 
     <script src="script.js"></script>
 </body>
